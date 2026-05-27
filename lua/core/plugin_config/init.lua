@@ -1,4 +1,3 @@
--- Load plugin configs safely. Missing plugins will not crash first startup.
 local modules = {
   "core.plugin_config.theme",
   "core.plugin_config.tree",
@@ -10,5 +9,8 @@ local modules = {
 }
 
 for _, module in ipairs(modules) do
-  pcall(require, module)
+  local ok, err = pcall(require, module)
+  if not ok then
+    vim.notify("Failed loading " .. module .. ":\n" .. err, vim.log.levels.ERROR)
+  end
 end

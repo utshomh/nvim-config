@@ -104,6 +104,118 @@ Then close and reopen Neovim.
 
 ---
 
+## LSP Requirements
+
+This config uses the following language servers:
+
+| Language | LSP Server | Required Command |
+|---|---|---|
+| JavaScript / TypeScript / Node / Bun | `ts_ls` | `typescript-language-server` |
+| Rust | `rust_analyzer` | `rust-analyzer` |
+| C / C++ | `clangd` | `clangd` |
+| Python | `pyright` | `pyright-langserver` |
+| Lua | `lua_ls` | `lua-language-server` |
+
+---
+
+## Install LSP Dependencies
+
+### Arch Linux
+
+```bash
+sudo pacman -Syu
+sudo pacman -S nodejs npm clang lua-language-server rust-analyzer
+```
+
+Then install the Node-based language servers:
+
+```bash
+npm install -g typescript typescript-language-server pyright
+```
+
+### Rust alternative with rustup
+
+If you manage Rust with `rustup`, install Rust Analyzer with:
+
+```bash
+rustup component add rust-analyzer
+```
+
+instead of:
+
+```bash
+sudo pacman -S rust-analyzer
+```
+
+---
+
+## Verify LSP Commands
+
+Run:
+
+```bash
+which typescript-language-server
+which rust-analyzer
+which clangd
+which pyright-langserver
+which lua-language-server
+```
+
+Each command should print a valid path.
+
+You can also check versions:
+
+```bash
+typescript-language-server --version
+rust-analyzer --version
+clangd --version
+pyright-langserver --version
+lua-language-server --version
+```
+
+---
+
+## Project-specific notes
+
+### Node / Bun / TypeScript
+
+For Node projects:
+
+```bash
+npm install -D typescript
+```
+
+For Bun projects:
+
+```bash
+bun add -d typescript @types/bun
+```
+
+The global `typescript-language-server` starts the LSP, while project-local `typescript` gives better project-specific type checking.
+
+### Rust
+
+Open Neovim inside a Cargo project:
+
+```bash
+cargo new my-project
+cd my-project
+nvim src/main.rs
+```
+
+### C / C++
+
+For best `clangd` support, use a `compile_commands.json` file when possible.
+
+### Python
+
+For Python projects, using a virtual environment is recommended:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
 ## Leader Key
 
 The leader key is set to:
