@@ -18,6 +18,24 @@ opt.wrap = false
 opt.mouse = "a"
 opt.showmode = false -- Statusline/completion UIs already communicate mode.
 
+-- Word wrapping --------------------------------------------------------------
+-- Wrap long lines visually instead of forcing horizontal scrolling.
+-- This does not insert real line breaks into the file.
+vim.opt.wrap = true
+
+-- Wrap at word boundaries when possible, instead of splitting words mid-word.
+vim.opt.linebreak = true
+
+-- Keep wrapped lines visually aligned with the start of the original line.
+vim.opt.breakindent = true
+
+-- Show a small marker before visually wrapped continuation lines.
+vim.opt.showbreak = "↪ "
+
+-- Move through visual wrapped lines with j/k instead of jumping by real lines.
+vim.keymap.set("n", "j", "gj", { desc = "Move down by visual line" })
+vim.keymap.set("n", "k", "gk", { desc = "Move up by visual line" })
+
 -- Editing --------------------------------------------------------------------
 opt.clipboard = "unnamedplus"
 opt.expandtab = true
