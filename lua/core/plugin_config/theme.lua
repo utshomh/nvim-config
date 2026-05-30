@@ -1,3 +1,5 @@
+-- Catppuccin theme configuration.
+
 local ok, catppuccin = pcall(require, "catppuccin")
 if not ok then
   return

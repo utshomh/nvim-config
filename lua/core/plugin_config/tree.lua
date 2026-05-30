@@ -1,3 +1,6 @@
+-- nvim-tree file explorer configuration.
+-- Disable netrw first so it does not fight with nvim-tree over directory buffers.
+
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 

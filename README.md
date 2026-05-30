@@ -1,91 +1,73 @@
 # Neovim Config
 
-A modern Neovim config for development with:
+A documented Neovim configuration focused on modern web, Go, Rust, Python, and Lua development.
 
-- JavaScript / TypeScript
-- Rust
-- C / C++
-- Python
-- Lua
-- Autocomplete
-- Go to definition
-- Hover docs
-- Diagnostics
-- Formatting
-- File explorer
-- Fuzzy finder
+This config uses **packer.nvim** as the plugin manager and the modern **Neovim 0.11+ native LSP API** (`vim.lsp.config` / `vim.lsp.enable`).
+
+## Features
+
+- JavaScript, TypeScript, React, JSX, and TSX LSP support
+- Tailwind CSS IntelliSense for `class`, `className`, `clsx()`, `cx()`, `cva()`, and ``tw`...` `` patterns
+- Go support through `gopls`
+- Rust support through `rust_analyzer`
+- Python support through `pyright`
+- Lua support through `lua_ls`
+- HTML and CSS language servers
+- Format-on-save for:
+  - JS / TS / JSX / TSX
+  - Rust
+  - Go
+  - Python
+  - Lua
+  - HTML
+  - CSS
+- Manual formatting through `<leader>f` or `:Format`
+- Autocomplete with `nvim-cmp`
+- Snippets with `LuaSnip` and `friendly-snippets`
 - Treesitter syntax highlighting
+- Telescope fuzzy finding
+- nvim-tree file explorer
 - Catppuccin theme
-
-This config uses **packer.nvim** as the plugin manager.
-
----
-
-## Preview Features
-
-### Language Support
-
-| Language | LSP Server |
-|---|---|
-| JavaScript / TypeScript | `ts_ls` |
-| Rust | `rust_analyzer` |
-| C / C++ | `clangd` |
-| Python | `pyright` |
-| Lua | `lua_ls` |
-
----
 
 ## Requirements
 
-Install these before using the config:
+Install the basics first. Use the command for your distro.
 
 ```bash
+# Arch Linux / EndeavourOS / Manjaro
+sudo pacman -Syu
+sudo pacman -S --needed git curl unzip ripgrep fd base-devel nodejs npm python python-pip go go-tools gopls rustup rust-analyzer clang lua-language-server stylua python-black python-isort neovim
+
+# If this is your first Rust setup on Arch:
+rustup toolchain install stable
+rustup default stable
+rustup component add rustfmt
+
+# Debian/Ubuntu
 sudo apt update
-sudo apt install -y git curl unzip ripgrep fd-find build-essential
+sudo apt install -y git curl unzip ripgrep fd-find build-essential nodejs npm python3 python3-pip golang-go rustup clangd lua-language-server neovim
 ```
 
-Install Neovim:
+Install **Neovim 0.11.3 or newer**. If your distro package is older, use your distro's latest channel, AppImage, Homebrew, Bob, Mise, or another version manager.
+
+Verify:
 
 ```bash
-sudo apt install -y neovim
+nvim --version
 ```
-
-Install language servers/tools:
-
-```bash
-# Node / TypeScript / Pyright
-npm install -g typescript typescript-language-server pyright
-
-# Rust analyzer
-rustup component add rust-analyzer
-
-# C / C++
-sudo apt install -y clangd
-
-# Lua language server
-sudo apt install -y lua-language-server
-```
-
-For Bun projects:
-
-```bash
-bun add -d @types/bun
-```
-
----
 
 ## Installation
 
-Backup your old Neovim config:
+Back up your old config:
 
 ```bash
 mv ~/.config/nvim ~/.config/nvim.bak
 ```
 
-Clone this config:
+Copy or clone this config into `~/.config/nvim`:
 
 ```bash
-git clone https://github.com/utsho/nvim-config.git ~/.config/nvim
+git clone https://github.com/utshomh/neovim-config.git ~/.config/nvim
 ```
 
 Open Neovim:
@@ -100,98 +82,184 @@ Install plugins:
 :PackerSync
 ```
 
-Then close and reopen Neovim.
+Close and reopen Neovim after plugin installation completes.
 
----
+## Language servers
 
-## LSP Requirements
+`mason-lspconfig` is configured to ensure these language servers are installed:
 
-This config uses the following language servers:
-
-| Language | LSP Server | Required Command |
+| Area | LSP server | Executable |
 |---|---|---|
-| JavaScript / TypeScript / Node / Bun | `ts_ls` | `typescript-language-server` |
+| JavaScript / TypeScript / React | `ts_ls` | `typescript-language-server` |
+| Tailwind CSS IntelliSense | `tailwindcss` | `tailwindcss-language-server` |
+| Go | `gopls` | `gopls` |
 | Rust | `rust_analyzer` | `rust-analyzer` |
-| C / C++ | `clangd` | `clangd` |
 | Python | `pyright` | `pyright-langserver` |
 | Lua | `lua_ls` | `lua-language-server` |
+| HTML | `html` | `vscode-html-language-server` |
+| CSS / SCSS / Less | `cssls` | `vscode-css-language-server` |
+| C / C++ | `clangd` | `clangd` |
 
----
+You can inspect or install LSPs from inside Neovim with:
 
-## Install LSP Dependencies
-
-### Arch Linux
-
-```bash
-sudo pacman -Syu
-sudo pacman -S nodejs npm clang lua-language-server rust-analyzer
+```vim
+:Mason
+:LspInfo
+:checkhealth vim.lsp
 ```
 
-Then install the Node-based language servers:
+## Format-on-save
 
-```bash
-npm install -g typescript typescript-language-server pyright
+Formatting is powered by `stevearc/conform.nvim`.
+
+| Filetype | Formatter chain |
+|---|---|
+| `javascript`, `javascriptreact`, `typescript`, `typescriptreact` | `prettierd` or `prettier` |
+| `html`, `css` | `prettierd` or `prettier` |
+| `go` | `goimports`, then `gofmt` |
+| `rust` | `rustfmt` |
+| `python` | `isort`, then `black` |
+| `lua` | `stylua` |
+
+Format-on-save only runs for the filetypes listed above. Other filetypes are left untouched unless you manually format them.
+
+Useful commands:
+
+```vim
+:Format          " format current buffer
+:FormatDisable   " disable format-on-save for the current buffer
+:FormatDisable!  " disable format-on-save globally for this Neovim session
+:FormatEnable    " re-enable format-on-save
+:ConformInfo     " inspect available formatters and formatter logs
 ```
 
-### Rust alternative with rustup
+## Installing formatter executables
 
-If you manage Rust with `rustup`, install Rust Analyzer with:
+Mason can install many of the formatter binaries from inside Neovim:
 
-```bash
-rustup component add rust-analyzer
+```vim
+:MasonInstall prettier prettierd goimports black isort stylua
 ```
 
-instead of:
+You can also install them manually. On Arch, prefer official packages when available:
 
 ```bash
-sudo pacman -S rust-analyzer
+# Arch Linux / EndeavourOS / Manjaro
+sudo pacman -S --needed go-tools python-black python-isort stylua
+
+# Web / React / HTML / CSS
+npm install -g prettier @fsouza/prettierd
+
+# Go, when not using Arch's go-tools package
+go install golang.org/x/tools/cmd/goimports@latest
+# gofmt ships with Go itself
+
+# Rust
+rustup component add rustfmt
+
+# Python, when not using Arch's python-black/python-isort packages
+python3 -m pip install --user black isort
+
+# Lua, when not using Arch's stylua package
+cargo install stylua
 ```
 
----
+Make sure any manually installed tools are available on your `PATH` before starting Neovim.
 
-## Verify LSP Commands
+## Installing language tooling manually
 
-Run:
+Mason should handle the configured LSP servers, but these manual commands are useful for non-Mason setups or troubleshooting:
+
+```bash
+# JS/TS/React + Python + HTML/CSS + Tailwind
+npm install -g typescript typescript-language-server pyright vscode-langservers-extracted @tailwindcss/language-server
+
+# Go
+go install golang.org/x/tools/gopls@latest
+
+# Rust
+rustup component add rust-analyzer rustfmt
+
+# Lua language server and clangd are usually easiest from your OS package manager.
+
+# Arch Linux / EndeavourOS / Manjaro
+sudo pacman -S --needed lua-language-server clang gopls go-tools rust-analyzer stylua python-black python-isort
+
+# Debian/Ubuntu examples may vary by release
+sudo apt install -y lua-language-server clangd
+```
+
+Verify commands:
 
 ```bash
 which typescript-language-server
+which tailwindcss-language-server
+which gopls
 which rust-analyzer
-which clangd
 which pyright-langserver
 which lua-language-server
+which vscode-html-language-server
+which vscode-css-language-server
+which clangd
+which prettier
+which goimports
+which black
+which isort
+which stylua
 ```
 
-Each command should print a valid path.
+## Keymaps
 
-You can also check versions:
+The leader key is `<Space>`.
+
+| Keymap | Action |
+|---|---|
+| `<leader>w` | Save file |
+| `<leader>q` | Quit window |
+| `<leader>e` | Toggle file explorer |
+| `<leader>ff` | Find files with Telescope |
+| `<leader>fg` | Live grep with Telescope |
+| `<leader>fb` | Find open buffers |
+| `<leader>fh` | Search help tags |
+| `<leader>f` | Format current buffer |
+| `gd` | Go to definition |
+| `gD` | Go to declaration |
+| `gr` | Find references |
+| `gi` | Go to implementation |
+| `K` | Hover documentation |
+| `<leader>rn` | Rename symbol |
+| `<leader>ca` | Code action |
+| `[d` / `]d` | Previous / next diagnostic |
+| `<leader>d` | Show line diagnostic |
+
+## Project notes
+
+### React, JSX, TSX, and Tailwind
+
+Open Neovim inside the project root so the language servers can find `package.json`, `tsconfig.json`, `tailwind.config.*`, or `.git`.
+
+Recommended project-local dependencies:
 
 ```bash
-typescript-language-server --version
-rust-analyzer --version
-clangd --version
-pyright-langserver --version
-lua-language-server --version
-```
-
----
-
-## Project-specific notes
-
-### Node / Bun / TypeScript
-
-For Node projects:
-
-```bash
-npm install -D typescript
+npm install -D typescript prettier tailwindcss
 ```
 
 For Bun projects:
 
 ```bash
-bun add -d typescript @types/bun
+bun add -d typescript prettier tailwindcss @types/bun
 ```
 
-The global `typescript-language-server` starts the LSP, while project-local `typescript` gives better project-specific type checking.
+### Go
+
+Open Neovim inside a Go module or workspace:
+
+```bash
+go mod init example.com/app
+nvim main.go
+```
+
+The config enables `gopls` options for `gofumpt`, `staticcheck`, unimported package completion, placeholders, and useful analyses. Formatting uses `goimports` followed by `gofmt`.
 
 ### Rust
 
@@ -203,142 +271,61 @@ cd my-project
 nvim src/main.rs
 ```
 
-### C / C++
-
-For best `clangd` support, use a `compile_commands.json` file when possible.
+`rust_analyzer` is configured to use all Cargo features and `clippy` for checks.
 
 ### Python
 
-For Python projects, using a virtual environment is recommended:
+Using a virtual environment is recommended:
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
+python -m pip install black isort
+nvim app.py
 ```
 
-## Leader Key
+### Lua / Neovim config development
 
-The leader key is set to:
+`lua_ls` is configured with `vim` as a known global and the Neovim runtime files in the workspace library. Formatting uses `stylua`, configured by `.stylua.toml`.
+
+## File layout
 
 ```text
-Space
+.
+├── init.lua
+├── lua/core
+│   ├── keymaps.lua
+│   ├── options.lua
+│   ├── plugins.lua
+│   └── plugin_config
+│       ├── autopairs.lua
+│       ├── cmp.lua
+│       ├── conform.lua
+│       ├── init.lua
+│       ├── lsp.lua
+│       ├── telescope.lua
+│       ├── theme.lua
+│       ├── tree.lua
+│       └── treesitter.lua
+├── .editorconfig
+└── .stylua.toml
 ```
 
-So when this README says `<leader>e`, press:
+## Troubleshooting
 
-```text
-Space + e
-```
-
----
-
-## Keybinds
-
-### General
-
-| Shortcut | Action |
-|---|---|
-| `<leader>w` | Save file |
-| `<leader>q` | Quit |
-| `Ctrl + h` | Move to left split |
-| `Ctrl + j` | Move to lower split |
-| `Ctrl + k` | Move to upper split |
-| `Ctrl + l` | Move to right split |
-
----
-
-### File Explorer
-
-| Shortcut | Action |
-|---|---|
-| `<leader>e` | Toggle file explorer |
-
----
-
-### Telescope Search
-
-| Shortcut | Action |
-|---|---|
-| `<leader>ff` | Find files |
-| `<leader>fg` | Search text in project |
-| `<leader>fb` | Show open buffers |
-| `<leader>fh` | Search help pages |
-
----
-
-### LSP / Code Navigation
-
-These shortcuts work when the language server is attached.
-
-| Shortcut | Action |
-|---|---|
-| `gd` | Go to definition |
-| `gD` | Go to declaration |
-| `gr` | Show references |
-| `gi` | Go to implementation |
-| `K` | Show hover documentation |
-| `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action |
-| `<leader>f` | Format file |
-| `[d` | Previous diagnostic |
-| `]d` | Next diagnostic |
-| `<leader>d` | Show diagnostic message |
-
----
-
-### Autocomplete
-
-| Shortcut | Action |
-|---|---|
-| `Ctrl + Space` | Open completion menu |
-| `Enter` | Accept selected completion |
-| `Tab` | Next completion item / jump snippet |
-| `Shift + Tab` | Previous completion item / jump back |
-
----
-
-## Useful Neovim Commands
-
-### Save file
+Run these first:
 
 ```vim
-:w
-```
-
-### Save and quit
-
-```vim
-:wq
-```
-
-### Quit without saving
-
-```vim
-:q!
-```
-
-### Open file
-
-```vim
-:e filename
-```
-
-### Install/update plugins
-
-```vim
-:PackerSync
-```
-
-### Check LSP status
-
-```vim
+:checkhealth
 :LspInfo
+:ConformInfo
+:Mason
 ```
 
-### Check Treesitter
+Common issues:
 
-```vim
-:TSInstallInfo
-```
----
-
+1. **LSP does not start**: check `:LspInfo`, then verify the executable with `which <command>`.
+2. **Formatting does not run**: run `:ConformInfo` and install the missing formatter.
+3. **Tailwind completions do not appear**: open Neovim at the project root and confirm the project has `tailwind.config.*`, `postcss.config.*`, or `package.json`.
+4. **Go imports are not organized**: install `goimports` and confirm `which goimports` works in the same shell that launches Neovim.
+5. **Distribution Neovim is too old**: install Neovim 0.11.3+ from a newer source.

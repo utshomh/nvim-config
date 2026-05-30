@@ -1,3 +1,6 @@
+-- Completion engine configuration.
+-- nvim-cmp combines LSP, snippets, filesystem paths, and current-buffer words.
+
 local cmp_ok, cmp = pcall(require, "cmp")
 if not cmp_ok then
   vim.notify("nvim-cmp is not loaded", vim.log.levels.ERROR)

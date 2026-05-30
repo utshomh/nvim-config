@@ -1,8 +1,12 @@
--- Packer plugin manager bootstrap + plugins
+-- Packer bootstrap + plugin list.
+-- After changing this file, run :PackerSync inside Neovim.
+
 local fn = vim.fn
 local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+local packer_bootstrap = false
 
 if fn.empty(fn.glob(install_path)) > 0 then
+  packer_bootstrap = true
   fn.system({
     "git",
     "clone",
@@ -15,28 +19,38 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 return require("packer").startup(function(use)
+  -- Plugin manager -----------------------------------------------------------
   use("wbthomason/packer.nvim")
 
-  -- Theme
+  -- Theme --------------------------------------------------------------------
   use({ "catppuccin/nvim", as = "catppuccin" })
 
-  -- File explorer + icons
+  -- File explorer + icons ----------------------------------------------------
   use({ "nvim-tree/nvim-web-devicons" })
   use({ "nvim-tree/nvim-tree.lua", requires = { "nvim-tree/nvim-web-devicons" } })
 
-  -- Fuzzy finder
+  -- Fuzzy finder -------------------------------------------------------------
   use({ "nvim-lua/plenary.nvim" })
   use({ "nvim-telescope/telescope.nvim", requires = { "nvim-lua/plenary.nvim" } })
 
-  -- Syntax highlighting; master keeps the classic configs.setup API stable for normal Nvim releases
+  -- Syntax highlighting ------------------------------------------------------
+  -- The master branch keeps the classic configs.setup API stable for normal
+  -- Neovim releases.
   use({ "nvim-treesitter/nvim-treesitter", branch = "master", run = ":TSUpdate" })
 
-  -- LSP installer + configs
+  -- LSP installer + configs --------------------------------------------------
   use({ "mason-org/mason.nvim" })
-  use({ "mason-org/mason-lspconfig.nvim", requires = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" } })
+  use({
+    "mason-org/mason-lspconfig.nvim",
+    requires = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
+  })
   use({ "neovim/nvim-lspconfig" })
 
-  -- Autocomplete + snippets
+  -- Formatter orchestration --------------------------------------------------
+  -- Conform runs external formatters and provides format-on-save.
+  use({ "stevearc/conform.nvim" })
+
+  -- Autocomplete + snippets --------------------------------------------------
   use({ "hrsh7th/nvim-cmp" })
   use({ "hrsh7th/cmp-nvim-lsp" })
   use({ "hrsh7th/cmp-buffer" })
@@ -45,10 +59,10 @@ return require("packer").startup(function(use)
   use({ "saadparwaiz1/cmp_luasnip" })
   use({ "rafamadriz/friendly-snippets" })
 
-  -- Quality of life
+  -- Quality of life ----------------------------------------------------------
   use({ "windwp/nvim-autopairs" })
 
-  if PACKER_BOOTSTRAP then
+  if packer_bootstrap then
     require("packer").sync()
   end
 end)
