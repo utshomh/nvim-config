@@ -67,7 +67,7 @@ mv ~/.config/nvim ~/.config/nvim.bak
 Copy or clone this config into `~/.config/nvim`:
 
 ```bash
-git clone https://github.com/utshomh/neovim-config.git ~/.config/nvim
+git clone https://github.com/utshomh/nvim-config.git ~/.config/nvim
 ```
 
 Open Neovim:
